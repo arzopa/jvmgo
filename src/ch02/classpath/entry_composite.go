@@ -30,12 +30,9 @@ func (self CompositeEntry) readClass(className string) ([]byte, Entry, error) {
 
 func (self CompositeEntry) String() string {
 	strs := make([]string, len(self))
-
 	for i, entry := range self {
 		strs[i] = entry.String()
 	}
 
 	return strings.Join(strs, pathListSeparator)
 }
-
-

@@ -1,15 +1,13 @@
 package classpath
 
-import (
-	"os"
-	"path/filepath"
-	"strings"
-)
+import "os"
+import "path/filepath"
+import "strings"
 
 func newWildcardEntry(path string) CompositeEntry {
-	// 去除路径末尾的*
+	// 去掉路径最后的 *
 	baseDir := path[:len(path)-1]
-	compositeEntry := [] Entry{}
+	compositeEntry := []Entry{}
 
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -17,7 +15,7 @@ func newWildcardEntry(path string) CompositeEntry {
 		}
 
 		if info.IsDir() && path != baseDir {
-			// 跳过子目录，通配符不能递归匹配子目录以下的文件
+			// 通配符类路径不能递归匹配子目录下的JAR文件
 			return filepath.SkipDir
 		}
 
@@ -29,7 +27,7 @@ func newWildcardEntry(path string) CompositeEntry {
 		return nil
 	}
 
-
+	// 遍历baseDir创建ZipEntry
 	filepath.Walk(baseDir, walkFn)
 	return compositeEntry
 }
