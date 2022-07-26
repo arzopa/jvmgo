@@ -2,6 +2,27 @@ package classfile
 
 import "fmt"
 
+/*
+ClassFile {
+    u4             magic;
+    u2             minor_version;
+    u2             major_version;
+    u2             constant_pool_count;
+    cp_info        constant_pool[constant_pool_count-1];
+    u2             access_flags;
+    u2             this_class;
+    u2             super_class;
+    u2             interfaces_count;
+    u2             interfaces[interfaces_count];
+    u2             fields_count;
+    field_info     fields[fields_count];
+    u2             methods_count;
+    method_info    methods[methods_count];
+    u2             attributes_count;
+    attribute_info attributes[attributes_count];
+}
+*/
+
 type ClassFile struct {
 	magic        uint32
 	minorVersion uint16
@@ -12,14 +33,14 @@ type ClassFile struct {
 	superClass   uint16
 	interfaces   []uint16
 	fields       []*MemberInfo
-	methods      []*memberInfo
+	methods      []*MemberInfo
 	attributes   []AttributeInfo
 }
 
 // []byte解析成结构体
 func Parse(classData []byte) (cf *ClassFile, err error) {
 	defer func() {
-		if r := recorver(); r != nil {
+		if r := recover(); r != nil {
 			var ok bool
 			err, ok = r.(error)
 
@@ -44,7 +65,7 @@ func (self *ClassFile) read(reader *ClassReader) {
 	self.superClass = reader.readUint16()
 	self.interfaces = reader.readUint16s()
 	self.fields = readMembers(reader, self.constantPool)
-	self.accessFlags = readMembers(reader, self.constantPool)
+	self.methods = readMembers(reader, self.constantPool)
 	self.attributes = readAttributes(reader, self.constantPool)
 }
 
@@ -73,7 +94,7 @@ func (self *ClassFile) readAndCheckVersion(reader *ClassReader) {
 }
 
 func (self *ClassFile) MinorVersion() uint16 {
-
+	return self.minorVersion
 }
 
 func (self *ClassFile) MajorVersion() uint16 {
@@ -81,21 +102,23 @@ func (self *ClassFile) MajorVersion() uint16 {
 }
 
 func (self *ClassFile) ConstantPool() ConstantPool {
-	return self.constantPool.getClassName(self.thisClass)
+	return self.constantPool
 }
 
 func (self *ClassFile) AccessFlags() uint16 {
-
+	return self.accessFlags
 }
 
 func (self *ClassFile) Fields() []*MemberInfo {
+	return self.fields
 }
 
 func (self *ClassFile) Methods() []*MemberInfo {
+	return self.methods
 }
 
 func (self *ClassFile) ClassName() string {
-
+	return self.constantPool.getClassName(self.thisClass)
 }
 
 // 从常量池中查找超类名
@@ -108,7 +131,7 @@ func (self *ClassFile) SuperClassName() string {
 }
 
 // 从常量池查找接口名
-func (self *ClassFile) interfaceNames() []string {
+func (self *ClassFile) InterfaceNames() []string {
 	interfaceNames := make([]string, len(self.interfaces))
 	for i, cpIndex := range self.interfaces {
 		interfaceNames[i] = self.constantPool.getClassName(cpIndex)

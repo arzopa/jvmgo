@@ -1,13 +1,11 @@
 package classfile
 
-import "debug/dwarf"
-
 type MemberInfo struct {
 	cp              ConstantPool // 常量池指针
 	accessFlag      uint16
 	nameIndex       uint16
 	descriptorIndex uint16
-	attribute       []ArributeInfo
+	attribute       []AttributeInfo
 }
 
 // 读取字段表或者方法表
@@ -33,14 +31,15 @@ func readMember(reader *ClassReader, cp ConstantPool) *MemberInfo {
 }
 
 func (self *MemberInfo) AccessFlags() uint16 {
+	return self.accessFlag
 }
 
 // 从常量池查找字段或者方法名
-func (self *MemberInfo) Name() uint16 {
+func (self *MemberInfo) Name() string {
 	return self.cp.getUtf8(self.nameIndex)
 }
 
 // 从常量池查找字段或者方法描述符
-func (self *MemberInfo) Descriptor() uint16 {
+func (self *MemberInfo) Descriptor() string {
 	return self.cp.getUtf8(self.descriptorIndex)
 }

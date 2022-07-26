@@ -9,7 +9,7 @@ attribute_info {
 */
 
 type AttributeInfo interface {
-	readinfo(reader *ClassReader)
+	readInfo(reader *ClassReader)
 }
 
 func readAttributes(reader *ClassReader, cp ConstantPool) []AttributeInfo {
@@ -22,14 +22,40 @@ func readAttributes(reader *ClassReader, cp ConstantPool) []AttributeInfo {
 	return attributes
 }
 
+/**
+ * 创建具体的属性实例
+ */
 func readAttribute(reader *ClassReader, cp ConstantPool) AttributeInfo {
-	attrnameIndex := reader.readUint16()
-	attrName := cp.getUtf8(attrnameIndex)
+	// 先读取属性名索引
+	attrNameIndex := reader.readUint16()
+	// 再从常量池中获取属性名
+	attrName := cp.getUtf8(attrNameIndex)
+	// 获取属性长度
 	attrLen := reader.readUint32()
 	attrInfo := newAttributeInfo(attrName, attrLen, cp)
 	attrInfo.readInfo(reader)
+	return attrInfo
 }
 
 func newAttributeInfo(attrName string, attrLen uint32, cp ConstantPool) AttributeInfo {
-
+	switch attrName {
+	case "Code":
+		return &CodeAttribute{cp: cp}
+	case "ConstantValue":
+		return &ConstantValueAttribute{}
+	case "Deprecated":
+		return &DeprecatedAttribute{}
+	case "Exceptions":
+		return &ExceptionsAttribute{}
+	case "LineNumberTable":
+		return &LineNumberTableAttribute{}
+	case "LocalVariableTable":
+		return &LocalVariableTableAttribute{}
+	case "SourceFile":
+		return &SourceFileAttribute{cp: cp}
+	case "Synthetic":
+		return &SyntheticAttribute{}
+	default:
+		return &UnparsedAttribute{attrName, attrLen, nil}
+	}
 }

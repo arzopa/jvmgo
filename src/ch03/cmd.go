@@ -24,7 +24,7 @@ func parseCmd() *Cmd {
 	flag.BoolVar(&cmd.versionFlag, "version", false, "print version and exit")
 	flag.StringVar(&cmd.cpOption, "classpath", "", "classpath")
 	flag.StringVar(&cmd.cpOption, "cp", "", "classpath")
-	flag.StringVar(&cmd.XJreOption, "XJre", "", "path to jre")
+	flag.StringVar(&cmd.XJreOption, "Xjre", "", "path to jre")
 	flag.Parse()
 
 	args := flag.Args()
